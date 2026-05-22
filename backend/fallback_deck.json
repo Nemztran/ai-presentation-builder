@@ -1,0 +1,73 @@
+{
+  "deck_id": "fallback_deck",
+  "title": "AI Presentation Builder",
+  "topic": "AI Presentation Builder",
+  "theme": "professional",
+  "slides": [
+    {
+      "slide_id": 1,
+      "layout": "title",
+      "content": {
+        "heading": "AI Presentation Builder",
+        "subheading": "Create presentation decks from a single topic"
+      },
+      "speaker_notes": "Welcome everyone. This demo shows how AI can generate a structured deck and export it to PowerPoint.",
+      "visual_hint": "Clean presentation interface"
+    },
+    {
+      "slide_id": 2,
+      "layout": "bullet",
+      "content": {
+        "heading": "The Problem",
+        "bullets": [
+          {
+            "text": "Creating slides is time-consuming",
+            "detail": "Users spend hours planning structure and content"
+          },
+          {
+            "text": "Design consistency is hard",
+            "detail": "Slides often lack layout and visual coherence"
+          },
+          {
+            "text": "Export workflow is fragmented",
+            "detail": "AI text must be manually copied into PowerPoint"
+          }
+        ]
+      },
+      "speaker_notes": "Many people can explain their idea, but turning it into a deck takes too long. Our tool reduces that friction.",
+      "visual_hint": "User looking at messy slides"
+    },
+    {
+      "slide_id": 3,
+      "layout": "two_column",
+      "content": {
+        "heading": "Our Solution",
+        "left_column": "Input:\n• Topic\n• Audience\n• Tone\n• Number of slides",
+        "right_column": "Output:\n• Structured JSON\n• Previewable slides\n• Speaker notes\n• PPTX export"
+      },
+      "speaker_notes": "The system transforms a simple input into a structured deck. The JSON format makes generation, preview, and export reliable.",
+      "visual_hint": "Pipeline from prompt to slides"
+    },
+    {
+      "slide_id": 4,
+      "layout": "quote",
+      "content": {
+        "quote": "Great presentations start with clear structure.",
+        "author": "AI Presentation Builder"
+      },
+      "speaker_notes": "The core idea is not just generating text. It is generating presentation-ready structure.",
+      "visual_hint": "Minimal typography quote slide"
+    },
+    {
+      "slide_id": 5,
+      "layout": "closing",
+      "content": {
+        "heading": "Ready to Build Better Decks",
+        "subheading": "From topic to PPTX in one workflow",
+        "cta": "Try the demo"
+      },
+      "speaker_notes": "This closes the demo. The next step is improving themes, templates, and collaboration.",
+      "visual_hint": "Bright closing slide"
+    }
+  ]
+}

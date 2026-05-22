@@ -1,0 +1,159 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PresentationDeck",
+  "type": "object",
+  "required": [
+    "deck_id",
+    "title",
+    "theme",
+    "slides"
+  ],
+  "properties": {
+    "deck_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string",
+      "maxLength": 80
+    },
+    "topic": {
+      "type": "string"
+    },
+    "theme": {
+      "type": "string",
+      "enum": [
+        "professional",
+        "minimal",
+        "bold",
+        "dark"
+      ]
+    },
+    "slides": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 15,
+      "items": {
+        "$ref": "#/definitions/Slide"
+      }
+    },
+    "source_filename": {
+      "type": "string"
+    },
+    "assets": {
+      "type": "object"
+    }
+  },
+  "definitions": {
+    "Slide": {
+      "type": "object",
+      "required": [
+        "slide_id",
+        "layout",
+        "content"
+      ],
+      "properties": {
+        "slide_id": {
+          "type": "integer"
+        },
+        "layout": {
+          "type": "string",
+          "enum": [
+            "title",
+            "bullet",
+            "two_column",
+            "image_text",
+            "quote",
+            "closing"
+          ]
+        },
+        "content": {
+          "$ref": "#/definitions/SlideContent"
+        },
+        "speaker_notes": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "visual_hint": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "transition": {
+          "type": "string",
+          "enum": [
+            "fade",
+            "push",
+            "wipe"
+          ]
+        },
+        "image_id": {
+          "type": "string"
+        },
+        "image_path": {
+          "type": "string"
+        }
+      }
+    },
+    "SlideContent": {
+      "type": "object",
+      "properties": {
+        "heading": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "subheading": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "bullets": {
+          "type": "array",
+          "maxItems": 6,
+          "items": {
+            "type": "object",
+            "required": [
+              "text"
+            ],
+            "properties": {
+              "text": {
+                "type": "string",
+                "maxLength": 150
+              },
+              "detail": {
+                "type": "string",
+                "maxLength": 200
+              }
+            }
+          }
+        },
+        "left_column": {
+          "type": "string"
+        },
+        "right_column": {
+          "type": "string"
+        },
+        "quote": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "author": {
+          "type": "string"
+        },
+        "cta": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "image_id": {
+          "type": "string"
+        },
+        "image_url": {
+          "type": "string"
+        },
+        "image_caption": {
+          "type": "string"
+        },
+        "image_path": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

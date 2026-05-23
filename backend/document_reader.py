@@ -50,8 +50,13 @@ async def read_uploaded_document(file: UploadFile, asset_root: Path, static_pref
         images = []
 
     text = normalize_text(text)
-    if len(text.strip()) < 20:
-        raise HTTPException(status_code=400, detail="File content is too short to create a presentation")
+    min_chars = 10 if images else 20
+    if len(text.strip()) < min_chars:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File content is too short (need at least {min_chars} characters of text). "
+            "Try a longer .txt/.md file or a .docx with more content.",
+        )
 
     return ExtractedDocument(filename=filename, ext=ext, text=text, images=images, asset_dir=asset_dir)
 
@@ -88,11 +93,18 @@ def extract_docx_text_and_images(raw: bytes, asset_dir: Path, static_prefix: str
             if cells:
                 parts.append(" | ".join(cells))
 
-    text = "\n".join(parts).strip()
-    if not text:
-        raise HTTPException(status_code=400, detail="DOCX file does not contain readable text")
-
     images = extract_images_from_docx_zip(raw, asset_dir, static_prefix, session_id)
+
+    text = "\n".join(parts).strip()
+    if not text and images:
+        text = "\n".join(
+            f"[{img['caption']}]" for img in images[:12]
+        ) + "\n\nPresentation generated from embedded images in the uploaded document."
+    if not text:
+        raise HTTPException(
+            status_code=400,
+            detail="DOCX file does not contain readable text or embedded images",
+        )
     # Preserve first-seen document order when possible.
     rid_to_index = {rid: i for i, rid in enumerate(image_refs)}
     images.sort(key=lambda item: rid_to_index.get(item.get("relationship_id", ""), 9999))

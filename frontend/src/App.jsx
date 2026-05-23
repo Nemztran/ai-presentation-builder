@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./style.css";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000";
@@ -16,6 +16,16 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState(null);
+  const [llmHealth, setLlmHealth] = useState(null);
+  const [generation, setGeneration] = useState(null);
+  const [customApiKey, setCustomApiKey] = useState("");
+
+  useEffect(() => {
+    fetch(`${API_BASE}/health`)
+      .then((res) => res.json())
+      .then(setLlmHealth)
+      .catch(() => setLlmHealth(null));
+  }, []);
 
   async function handleFileChange(e) {
     const file = e.target.files?.[0] || null;
@@ -23,6 +33,7 @@ export default function App() {
     setDeckData(null);
     setSlides(null);
     setSourceImages([]);
+    setGeneration(null);
     setError(null);
 
     if (!file) {
@@ -59,6 +70,7 @@ export default function App() {
     setError(null);
     setSlides(null);
     setSourceImages([]);
+    setGeneration(null);
 
     try {
       const formData = new FormData();
@@ -66,21 +78,38 @@ export default function App() {
       formData.append("audience", audience);
       formData.append("tone", tone);
       formData.append("num_slides", String(Number(numSlides)));
+      if (customApiKey) {
+        formData.append("api_key", customApiKey);
+      }
 
       const res = await fetch(`${API_BASE}/generate-deck-from-file`, {
         method: "POST",
         body: formData,
       });
 
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) {
+        const body = await res.text();
+        let detail = body;
+        try {
+          const parsed = JSON.parse(body);
+          detail = parsed.detail ?? body;
+          if (Array.isArray(detail)) {
+            detail = detail.map((d) => d.msg || JSON.stringify(d)).join("; ");
+          }
+        } catch {
+          /* keep raw body */
+        }
+        throw new Error(detail || `HTTP ${res.status}`);
+      }
 
       const data = await res.json();
       setDeckData(data.deck);
       setSlides(data.deck.slides);
       setSourceImages(data.images || []);
+      setGeneration(data.generation || null);
       setActiveSlide(0);
     } catch (e) {
-      setError("Không tạo được deck từ file. Kiểm tra backend log hoặc định dạng file.");
+      setError(e.message || "Không tạo được deck từ file.");
       console.error(e);
     } finally {
       setLoading(false);
@@ -96,10 +125,23 @@ export default function App() {
       const res = await fetch(`${API_BASE}/export-pptx`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ deck: deckData, enable_transitions: true }),
+        body: JSON.stringify({
+          deck: deckData,
+          enable_transitions: true,
+        }),
       });
 
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) {
+        const body = await res.text();
+        let detail = body;
+        try {
+          const parsed = JSON.parse(body);
+          detail = parsed.detail ?? body;
+        } catch {
+          /* ignore */
+        }
+        throw new Error(detail || `HTTP ${res.status}`);
+      }
 
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
@@ -130,6 +172,35 @@ export default function App() {
         </div>
       </section>
 
+      {llmHealth && (
+        <div className={`llm-status ${llmHealth.llm_configured || customApiKey ? "configured" : "missing"}`}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>
+              Backend LLM: {customApiKey
+                ? "Đang dùng Custom API Key (từ trình duyệt)"
+                : llmHealth.llm_configured
+                  ? `${llmHealth.llm_provider} (${llmHealth.llm_model}) — key môi trường`
+                  : "chưa có API key (vui lòng nhập hoặc cấu hình ENV)"}
+            </span>
+            <button
+              onClick={() => {
+                const key = prompt("Nhập API Key từ Google AI Studio (bắt đầu bằng AIza...):", customApiKey);
+                if (key !== null) setCustomApiKey(key.trim());
+              }}
+              style={{ fontSize: '12px', padding: '6px 10px', background: '#e5e7eb', color: '#1f2937', border: '1px solid #d1d5db', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+            >
+              {customApiKey ? "Đổi API Key" : "Nhập API Key"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {generation && (
+        <div className={`llm-status ${generation.used_llm ? "configured" : "missing"}`}>
+          Lần generate vừa rồi: {formatGeneration(generation)}
+        </div>
+      )}
+
       <section className="panel controls file-controls">
         <label className="file-box">
           <span>Source file</span>
@@ -156,7 +227,10 @@ export default function App() {
           min="3"
           max="15"
           value={numSlides}
-          onChange={(e) => setNumSlides(e.target.value)}
+          onChange={(e) => {
+            const n = Number(e.target.value);
+            if (!Number.isNaN(n)) setNumSlides(n);
+          }}
         />
 
         <button onClick={handleGenerate} disabled={loading || !sourceFile}>
@@ -230,6 +304,22 @@ export default function App() {
   );
 }
 
+function formatGeneration(gen) {
+  if (gen.used_llm) {
+    return `đã gọi ${gen.provider} (${gen.model})`;
+  }
+  if (gen.source === "demo_document_no_key" || gen.source === "demo_no_key") {
+    return "không gọi LLM — chế độ demo (chưa có key)";
+  }
+  if (gen.source === "demo_document_llm_error" || gen.source === "demo_llm_error") {
+    const hint = gen.error?.includes("429") || gen.error?.includes("quota")
+      ? "hết quota / rate limit — đổi model hoặc đợi"
+      : "lỗi API";
+    return `không gọi LLM thành công (${hint})${gen.error ? `: ${gen.error.slice(0, 120)}…` : ""}`;
+  }
+  return gen.source || "không rõ";
+}
+
 function SlidePreview({ slide, theme }) {
   if (!slide) return null;
 
@@ -238,6 +328,7 @@ function SlidePreview({ slide, theme }) {
 
   return (
     <div className={`slide-preview theme-${theme || "professional"} layout-${slide.layout}`}>
+      <div className="slide-header-band" />
       <div className="badge">{slide.layout} · {slide.transition || "fade"}</div>
 
       {imageUrl && (slide.layout === "title" || slide.layout === "quote") && <img className="slide-bg-image" src={imageUrl} alt={content.image_caption || "DOCX image"} />}

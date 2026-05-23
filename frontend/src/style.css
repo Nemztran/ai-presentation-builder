@@ -37,9 +37,26 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 .image-list img { width: 92px; height: 64px; object-fit: cover; border-radius: 10px; border: 1px solid #e5e7eb; }
 .slide-preview { position: relative; min-height: 500px; aspect-ratio: 16/9; overflow: hidden; border-radius: 20px; background: white; border: 1px solid #e5e7eb; padding: 88px 64px 52px; box-shadow: 0 16px 40px rgba(15, 23, 42, .08); display: flex; flex-direction: column; justify-content: center; }
 .layout-title.slide-preview, .layout-quote.slide-preview { padding-top: 58px; }
-.theme-dark { background: #1a1a2e; color: white; }
+.theme-dark { background: #0f172a; color: white; }
 .theme-bold { background: #f0f4ff; }
 .theme-minimal { background: #fafafa; }
+/* Title slide: rich gradient instead of plain white */
+.layout-title.slide-preview {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 40%, #a855f7 70%, #ec4899 100%);
+  color: white;
+}
+.layout-title.theme-dark.slide-preview {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 40%, #4f46e5 80%, #7c3aed 100%);
+  color: white;
+}
+.layout-title.theme-bold.slide-preview {
+  background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 40%, #2563eb 80%, #0ea5e9 100%);
+  color: white;
+}
+.layout-title.theme-minimal.slide-preview {
+  background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #ede9fe 100%);
+  color: #1e1b4b;
+}
 .badge { position: absolute; top: 16px; right: 16px; z-index: 4; color: #4f46e5; background: #eef2ff; padding: 6px 12px; font-size: 12px; font-weight: 900; border-radius: 99px; }
 .slide-preview h2 { position: relative; z-index: 3; font-size: 34px; line-height: 1.15; margin: 0 0 18px; }
 .subheading { position: relative; z-index: 3; font-size: 22px; color: #6b7280; margin: 0 0 16px; }
@@ -60,9 +77,13 @@ blockquote footer { font-size: 18px; margin-top: 20px; font-weight: 500; opacity
 .docx-image-card img { width: 100%; height: 100%; min-height: 310px; object-fit: contain; }
 .mini-docx-image { position: absolute; right: 48px; bottom: 42px; width: 260px; max-height: 150px; object-fit: contain; border-radius: 14px; border: 1px solid #e5e7eb; background: white; z-index: 3; }
 .slide-bg-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
-.slide-bg-overlay { position: absolute; inset: 0; background: rgba(0,0,0,.48); z-index: 2; }
+/* Soft indigo-violet overlay — no black */
+.slide-bg-overlay { position: absolute; inset: 0; background: linear-gradient(160deg, rgba(79,70,229,.5) 0%, rgba(99,38,163,.6) 100%); z-index: 2; }
 .layout-title h2, .layout-title .subheading, .layout-quote blockquote { color: inherit; }
 .slide-preview:has(.slide-bg-image) { color: white; }
+/* Title slide subheading: lighter on gradient backgrounds */
+.layout-title .subheading { color: rgba(255,255,255,.85); }
+.layout-title.theme-minimal .subheading { color: #4338ca; }
 .notes { margin-top: 14px; padding: 16px 18px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 16px; color: #78350f; }
 .notes strong { font-size: 12px; letter-spacing: .08em; }
 .notes p { margin: 8px 0 0; line-height: 1.6; }
@@ -70,7 +91,7 @@ blockquote footer { font-size: 18px; margin-top: 20px; font-weight: 500; opacity
 .export { background: #059669; }
 .slide-header-band { position: absolute; top: 0; left: 0; right: 0; height: 72px; background: linear-gradient(90deg, #eef2ff 0%, #f8fafc 100%); border-bottom: 3px solid #4f46e5; z-index: 1; pointer-events: none; }
 .layout-title .slide-header-band, .layout-quote .slide-header-band, .layout-closing .slide-header-band { display: none; }
-.theme-dark .slide-header-band { background: linear-gradient(90deg, #1e293b, #0f172a); border-bottom-color: #38bdf8; }
+.theme-dark .slide-header-band { background: linear-gradient(90deg, #1e3a8a, #1e40af); border-bottom-color: #38bdf8; }
 .theme-bold .slide-header-band { background: linear-gradient(90deg, #ede9fe, #f5f3ff); border-bottom-color: #7c3aed; }
 .slide-preview .slide-content { position: relative; z-index: 3; }
 @media (max-width: 900px) { .controls { grid-template-columns: 1fr; } .workspace { grid-template-columns: 1fr; } .thumbnails { position: static; } .slide-preview { padding: 42px 30px; min-height: 360px; } .layout-image_text { grid-template-columns: 1fr; } }

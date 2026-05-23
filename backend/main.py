@@ -433,11 +433,8 @@ def attach_source_assets(deck: dict[str, Any], images: list[dict[str, Any]], fil
             slide["layout"] = "image_text"
         image_cursor += 1
 
-    # Make title slide visually richer if the document contains images.
-    if images and deck.get("slides"):
-        first = deck["slides"][0]
-        first.setdefault("content", {})["image_id"] = images[0]["image_id"]
-        first.setdefault("content", {})["image_url"] = images[0]["url"]
+    # NOTE: Do NOT assign a bg image to the title slide — it triggers a dark overlay.
+    # The title slide uses a CSS gradient instead (see .layout-title.slide-preview in style.css).
 
     for idx, slide in enumerate(deck.get("slides", [])):
         slide.setdefault("transition", "fade" if idx % 2 == 0 else "push")

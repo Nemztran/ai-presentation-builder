@@ -30,8 +30,8 @@
     },
     "slides": {
       "type": "array",
-      "minItems": 3,
-      "maxItems": 15,
+      "minItems": 1,
+      "maxItems": 30,
       "items": {
         "$ref": "#/definitions/Slide"
       }
@@ -71,11 +71,11 @@
         },
         "speaker_notes": {
           "type": "string",
-          "maxLength": 500
+          "maxLength": 1000
         },
         "visual_hint": {
           "type": "string",
-          "maxLength": 100
+          "maxLength": 200
         },
         "transition": {
           "type": "string",
@@ -102,7 +102,7 @@
         },
         "subheading": {
           "type": "string",
-          "maxLength": 120
+          "maxLength": 300
         },
         "bullets": {
           "type": "array",

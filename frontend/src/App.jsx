@@ -226,11 +226,12 @@ export default function App() {
         <input
           type="number"
           min="3"
-          max="15"
+          max="30"
           value={numSlides}
+          title="Số slide (3–30)"
           onChange={(e) => {
             const n = Number(e.target.value);
-            if (!Number.isNaN(n)) setNumSlides(n);
+            if (!Number.isNaN(n)) setNumSlides(Math.min(30, Math.max(3, n)));
           }}
         />
 

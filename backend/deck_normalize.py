@@ -70,7 +70,7 @@ def _normalize_slide(slide: Any, index: int) -> dict[str, Any]:
     for key in ("speaker_notes", "visual_hint", "image_id", "image_path"):
         val = slide.get(key)
         if val:
-            out[key] = _truncate(str(val), 500 if key == "speaker_notes" else 100)
+            out[key] = _truncate(str(val), 1000 if key == "speaker_notes" else 200)
 
     transition = slide.get("transition")
     if transition in VALID_TRANSITIONS:
@@ -145,11 +145,11 @@ def _normalize_content(content: Any, layout: str) -> dict[str, Any]:
         out["heading"] = _truncate(heading or "Presentation", 80)
         out["subheading"] = _truncate(
             subheading or _first_str(content, "presenter_info", "presenter") or "",
-            120,
+            300,
         )
     elif layout == "closing":
         out["heading"] = _truncate(heading or "Thank you", 80)
-        out["subheading"] = _truncate(subheading or "", 120)
+        out["subheading"] = _truncate(subheading or "", 300)
         cta = _first_str(content, "cta", "contact_info", "call_to_action", "contact")
         if cta:
             out["cta"] = _truncate(cta, 80)
@@ -170,7 +170,7 @@ def _normalize_content(content: Any, layout: str) -> dict[str, Any]:
         if heading:
             out["heading"] = _truncate(heading, 80)
         if subheading:
-            out["subheading"] = _truncate(subheading, 120)
+            out["subheading"] = _truncate(subheading, 300)
         bullets = _normalize_bullets(content)
         if bullets:
             out["bullets"] = bullets

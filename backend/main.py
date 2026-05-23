@@ -17,6 +17,7 @@ from pydantic import BaseModel, Field
 from deck_normalize import normalize_llm_deck
 from document_reader import read_uploaded_document
 from json_utils import parse_llm_json, strip_markdown_fence
+from language_detect import detect_language
 from prompts import FILE_PROMPT_TEMPLATE, SYSTEM_PROMPT, USER_PROMPT_TEMPLATE
 from pptx_exporter import build_pptx
 
@@ -41,7 +42,7 @@ app.mount("/assets", StaticFiles(directory=str(ASSET_ROOT)), name="assets")
 
 class GenerateRequest(BaseModel):
     topic: str = Field(..., min_length=1)
-    num_slides: int = Field(default=6, ge=3, le=15)
+    num_slides: int = Field(default=6, ge=3, le=30)
     audience: str = "general"
     tone: str = "professional"
     api_key: str = ""
@@ -66,11 +67,13 @@ def health():
 @app.post("/generate-deck")
 async def generate_deck(req: GenerateRequest):
     """Old topic-based endpoint. Kept for compatibility."""
+    language = detect_language(req.topic)
     prompt = USER_PROMPT_TEMPLATE.format(
         num_slides=req.num_slides,
         topic=req.topic,
         audience=req.audience,
         tone=req.tone,
+        language=language,
     )
 
     deck, generation = call_ai_with_retry(prompt, max_retries=3, client_api_key=req.api_key)
@@ -94,8 +97,8 @@ async def generate_deck_from_file(
     api_key: str = Form(default=""),
 ):
     """Upload .txt/.md/.docx and generate a deck. DOCX images are extracted and reused in preview/PPTX."""
-    if num_slides < 3 or num_slides > 15:
-        raise HTTPException(status_code=422, detail="num_slides must be between 3 and 15")
+    if num_slides < 3 or num_slides > 30:
+        raise HTTPException(status_code=422, detail="num_slides must be between 3 and 30")
 
     try:
         extracted = await read_uploaded_document(file, ASSET_ROOT, static_prefix="/assets")
@@ -108,10 +111,14 @@ async def generate_deck_from_file(
         f"- {img['image_id']}: {img['caption']} ({img['filename']})" for img in extracted.images[:12]
     ) or "No embedded images found."
 
+    language = detect_language(extracted.text)
+    print(f"[INFO] Detected language: {language}")
+
     prompt = FILE_PROMPT_TEMPLATE.format(
         num_slides=num_slides,
         audience=audience,
         tone=tone,
+        language=language,
         text_content=extracted.text[:12000],
         image_summary=image_summary,
     )
@@ -317,7 +324,7 @@ def _call_gemini_with_retry(prompt: str, max_retries: int, client_api_key: str =
                 response = model.generate_content(
                     prompt + _json_retry_hint(attempt),
                     generation_config=genai.types.GenerationConfig(
-                        max_output_tokens=8192,
+                        max_output_tokens=16384,
                         temperature=0.3 if attempt else 0.4,
                         response_mime_type="application/json",
                     ),
@@ -372,7 +379,7 @@ def _call_anthropic_with_retry(prompt: str, max_retries: int, client_api_key: st
         try:
             msg = client.messages.create(
                 model=os.getenv("CLAUDE_MODEL", "claude-sonnet-4-20250514"),
-                max_tokens=8192,
+                max_tokens=16000,
                 system=SYSTEM_PROMPT,
                 messages=[{"role": "user", "content": prompt + _json_retry_hint(attempt)}],
             )
@@ -452,7 +459,7 @@ def build_demo_deck_from_document(title: str, text: str, images: list[dict[str, 
         words = text.split()
         bullets = [" ".join(words[i:i + 18]) for i in range(0, min(len(words), 90), 18)]
 
-    slide_count = max(3, min(num_slides, 15))
+    slide_count = max(3, min(num_slides, 30))
     deck = {
         "deck_id": f"demo_docx_{uuid.uuid4().hex[:8]}",
         "title": title[:80],

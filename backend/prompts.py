@@ -49,6 +49,7 @@ Rules:
 - Summarize source content; do not paste long paragraphs
 - Escape " inside string values; avoid raw line breaks inside JSON strings
 - Keep each speaker_notes under 400 characters to prevent truncated JSON
+- MANDATORY SLIDE COUNT: The user specifies an EXACT number of slides (N). You MUST output EXACTLY N slides in the slides array — no more, no fewer. Do NOT stop early. Do NOT add extra slides. Count carefully before finishing.
 
 Example shape (follow field names exactly):
 {DECK_JSON_SHAPE}
@@ -57,14 +58,17 @@ Example shape (follow field names exactly):
 USER_PROMPT_TEMPLATE = """Create a {num_slides}-slide presentation on: "{topic}"
 Target audience: {audience}
 Tone: {tone}
+Output language: {language}
 
-IMPORTANT: Generate all output text in the same language as the topic.
+IMPORTANT: Generate ALL output text — headings, bullets, subheadings, speaker_notes, cta, visual_hint — entirely in {language}. Do NOT use English unless {language} is English.
+MANDATORY: The slides array MUST contain EXACTLY {num_slides} slides. Count them before returning.
 
 Return ONLY the JSON object matching the schema in the system prompt. No extra text."""
 
-FILE_PROMPT_TEMPLATE = """Create a {num_slides}-slide presentation based on the document content below.
+FILE_PROMPT_TEMPLATE = """Create a presentation with EXACTLY {num_slides} slides based on the document content below.
 Target audience: {audience}
 Tone: {tone}
+Detected source language: {language}
 
 Requirements:
 - Infer a clear deck title from the content.
@@ -74,7 +78,8 @@ Requirements:
 - If SOURCE IMAGES are listed, use them in relevant slides by setting content.image_id to one of the listed ids.
 - Use layout = "image_text" for slides where the image supports the text.
 - Add transition field for every slide: "fade", "push", or "wipe".
-- IMPORTANT: Generate all output text (headings, bullets, quotes, speaker_notes, etc.) in the SAME LANGUAGE as the SOURCE TEXT.
+- LANGUAGE RULE: Generate ALL output text — title, headings, bullets, subheadings, quotes, speaker_notes, cta, visual_hint — entirely in {language}. Do NOT translate, do NOT use English unless the source language is English.
+- MANDATORY SLIDE COUNT: You MUST generate EXACTLY {num_slides} slides. The slides array length must equal {num_slides}. Do NOT stop at 8 or 10 or any other number. Keep adding slides until you reach {num_slides}.
 
 SOURCE IMAGES:
 {image_summary}
@@ -82,4 +87,5 @@ SOURCE IMAGES:
 SOURCE TEXT:
 {text_content}
 
+REMINDER: Output EXACTLY {num_slides} slides total (slide_id 1 through {num_slides}). First = title layout, last = closing layout. All text in {language}.
 Return ONLY the JSON object (deck_id, title, theme, slides). Use slide_id and content.heading — not slide_number or content.title."""

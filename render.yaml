@@ -11,6 +11,11 @@ services:
         sync: false          # Bạn nhập tay trong Render Dashboard
       - key: GEMINI_MODEL
         value: gemini-2.5-flash
+      # Fix maturin/Rust build lỗi "Read-only file system"
+      - key: PIP_PREFER_BINARY
+        value: "1"
+      - key: CARGO_HOME
+        value: /tmp/cargo
       # Uncomment nếu dùng Claude thay vì Gemini:
       # - key: ANTHROPIC_API_KEY
       #   sync: false

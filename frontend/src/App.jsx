@@ -172,28 +172,29 @@ export default function App() {
         </div>
       </section>
 
-      {llmHealth && (
-        <div className={`llm-status ${llmHealth.llm_configured || customApiKey ? "configured" : "missing"}`}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>
-              Backend LLM: {customApiKey
-                ? "Đang dùng Custom API Key (từ trình duyệt)"
-                : llmHealth.llm_configured
-                  ? `${llmHealth.llm_provider} (${llmHealth.llm_model}) — key môi trường`
-                  : "chưa có API key (vui lòng nhập hoặc cấu hình ENV)"}
-            </span>
-            <button
-              onClick={() => {
-                const key = prompt("Nhập API Key từ Google AI Studio (bắt đầu bằng AIza...):", customApiKey);
-                if (key !== null) setCustomApiKey(key.trim());
-              }}
-              style={{ fontSize: '12px', padding: '6px 10px', background: '#e5e7eb', color: '#1f2937', border: '1px solid #d1d5db', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
-            >
-              {customApiKey ? "Đổi API Key" : "Nhập API Key"}
-            </button>
-          </div>
+      <div className={`llm-status ${(llmHealth?.llm_configured) || customApiKey ? "configured" : "missing"}`}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>
+            Backend LLM:{" "}
+            {customApiKey
+              ? "Đang dùng Custom API Key (từ trình duyệt)"
+              : llmHealth?.llm_configured
+                ? `${llmHealth.llm_provider} (${llmHealth.llm_model}) — key môi trường`
+                : llmHealth === null
+                  ? "Không kết nối được backend — nhập API Key để dùng"
+                  : "chưa có API key (vui lòng nhập bên dưới)"}
+          </span>
+          <button
+            onClick={() => {
+              const key = prompt("Nhập API Key từ Google AI Studio (bắt đầu bằng AIza...) hoặc Anthropic (sk-ant...):", customApiKey);
+              if (key !== null) setCustomApiKey(key.trim());
+            }}
+            style={{ fontSize: '12px', padding: '6px 10px', background: '#e5e7eb', color: '#1f2937', border: '1px solid #d1d5db', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', flexShrink: 0, marginLeft: '12px' }}
+          >
+            {customApiKey ? "Đổi API Key" : "Nhập API Key"}
+          </button>
         </div>
-      )}
+      </div>
 
       {generation && (
         <div className={`llm-status ${generation.used_llm ? "configured" : "missing"}`}>

@@ -11,11 +11,16 @@ services:
         sync: false          # Bạn nhập tay trong Render Dashboard
       - key: GEMINI_MODEL
         value: gemini-2.5-flash
-      # Fix maturin/Rust build lỗi "Read-only file system"
+      # Fix Python version - Render mặc định dùng 3.14 (quá mới, chưa có wheel)
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      # Fix maturin/Rust build lỗi "Read-only file system" + PyO3 compatibility
       - key: PIP_PREFER_BINARY
         value: "1"
       - key: CARGO_HOME
         value: /tmp/cargo
+      - key: PYO3_USE_ABI3_FORWARD_COMPATIBILITY
+        value: "1"
       # Uncomment nếu dùng Claude thay vì Gemini:
       # - key: ANTHROPIC_API_KEY
       #   sync: false

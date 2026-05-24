@@ -282,7 +282,6 @@ def build_demo_deck_from_document(title: str, text: str, images: list[dict[str, 
         content: dict[str, Any] = {
             "heading": chunk[0][:80],
             "bullets": [{"text": item[:130]} for item in chunk[:4]],
-            "subheading": "\n".join(f"• {item[:120]}" for item in chunk[:4]),
         }
         if layout == "two_column":
             left = chunk[:2]

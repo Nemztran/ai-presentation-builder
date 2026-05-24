@@ -14,7 +14,7 @@
     },
     "title": {
       "type": "string",
-      "maxLength": 80
+      "maxLength": 500
     },
     "topic": {
       "type": "string"
@@ -71,11 +71,11 @@
         },
         "speaker_notes": {
           "type": "string",
-          "maxLength": 500
+          "maxLength": 2000
         },
         "visual_hint": {
           "type": "string",
-          "maxLength": 100
+          "maxLength": 500
         },
         "transition": {
           "type": "string",
@@ -98,11 +98,11 @@
       "properties": {
         "heading": {
           "type": "string",
-          "maxLength": 80
+          "maxLength": 500
         },
         "subheading": {
           "type": "string",
-          "maxLength": 120
+          "maxLength": 1000
         },
         "bullets": {
           "type": "array",
@@ -115,11 +115,11 @@
             "properties": {
               "text": {
                 "type": "string",
-                "maxLength": 150
+                "maxLength": 500
               },
               "detail": {
                 "type": "string",
-                "maxLength": 200
+                "maxLength": 500
               }
             }
           }
@@ -132,14 +132,14 @@
         },
         "quote": {
           "type": "string",
-          "maxLength": 300
+          "maxLength": 1000
         },
         "author": {
           "type": "string"
         },
         "cta": {
           "type": "string",
-          "maxLength": 80
+          "maxLength": 500
         },
         "image_id": {
           "type": "string"
